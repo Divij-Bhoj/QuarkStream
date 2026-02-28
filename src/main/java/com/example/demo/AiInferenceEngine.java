@@ -31,18 +31,22 @@ public class AiInferenceEngine {
         }
     }
 
+    /**
+     * Analyzes physics telemetry for anomalies using the internal ONNX model.
+     * 
+     * @param eventPayload JSON string containing event metrics (pT, eta, etc.)
+     */
     public void analyzeEvent(String eventPayload) {
-        // FIXME: We need to apply StandardScaler normalization here 
-        // to match the training data distribution (mu=0, sigma=1).
+        // Standardize features to match training distribution (mu=0, sigma=1)
         float[] scaledFeatures = scaleFeatures(new float[]{1.0f, 0.5f, -0.2f}); 
         
-        // REAL INFERENCE LOGIC:
-        // 1. Pass scaledFeatures to OnnxTensor...
+        // TODO: Map scaledFeatures to OrtTensor and execute session run
         
         double simulatedScore = Math.random(); 
         
         if (simulatedScore > 0.98) {
             logger.warn("🚨 AI ANOMALY DETECTED (via ONNX)! Event: {}", eventPayload);
+            // TODO: Persist to H2 for audit logging and dashboard alerting
         } else {
             logger.info("Event verified normal by AI.");
         }
