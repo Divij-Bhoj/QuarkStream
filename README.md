@@ -28,6 +28,18 @@ The project includes a robust GitHub Actions workflow (`.github/workflows/ci.yml
 - Executes unit tests for the AI inference logic.
 - Ensures the stability of the distributed system on every commit.
 
+## 📊 Sample Execution Logs
+
+When the service is running alongside the LHC data generator, you will see real-time anomaly detection in the logs:
+
+```text
+2026-02-28 10:15:22.412 INFO  [main] c.e.demo.AiInferenceEngine : AI Inference Engine initialized with ONNX Runtime.
+2026-02-28 10:15:23.088 INFO  [nt-1] c.e.demo.LhcEventConsumer  : Received physics event: {"event_id":9921, "pt":42.5, "eta":1.2}
+2026-02-28 10:15:23.089 INFO  [nt-1] c.e.demo.AiInferenceEngine : Event verified normal by AI.
+2026-02-28 10:15:23.145 INFO  [nt-1] c.e.demo.LhcEventConsumer  : Received physics event: {"event_id":9922, "pt":850.1, "eta":0.1}
+2026-02-28 10:15:23.146 WARN  [nt-1] c.e.demo.AiInferenceEngine : 🚨 AI ANOMALY DETECTED (via ONNX)! Event: {"event_id":9922, "pt":850.1, "eta":0.1}
+```
+
 ## 🐳 Containerization & Orchestration
 
 - **Docker:** `Dockerfile` provided for standard OCI containerization.
