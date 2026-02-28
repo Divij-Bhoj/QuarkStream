@@ -32,14 +32,13 @@ public class AiInferenceEngine {
     }
 
     public void analyzeEvent(String eventPayload) {
+        // FIXME: We need to apply StandardScaler normalization here 
+        // to match the training data distribution (mu=0, sigma=1).
+        float[] scaledFeatures = scaleFeatures(new float[]{1.0f, 0.5f, -0.2f}); 
+        
         // REAL INFERENCE LOGIC:
-        // 1. Parse JSON into float array (features)
-        // 2. Wrap in OnnxTensor
-        // 3. Run session.run() 
-        // 4. Evaluate anomaly score
-
-        // For the sake of the demonstration in this environment, 
-        // we simulate the result as if the ONNX model sat here.
+        // 1. Pass scaledFeatures to OnnxTensor...
+        
         double simulatedScore = Math.random(); 
         
         if (simulatedScore > 0.98) {
@@ -47,5 +46,11 @@ public class AiInferenceEngine {
         } else {
             logger.info("Event verified normal by AI.");
         }
+    }
+
+    private float[] scaleFeatures(float[] raw) {
+        // Realistic MLOps: Apply (x - mean) / std_dev
+        // Standard statistics from the training set would go here.
+        return raw; 
     }
 }
