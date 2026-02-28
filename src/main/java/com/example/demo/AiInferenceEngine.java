@@ -46,7 +46,7 @@ public class AiInferenceEngine {
                     latestAnomalyPt = pt;
                     logger.warn("ANOMALY_DETECTED: High-Transverse Momentum Signal Identified (pt={} GeV)", pt);
                 } else {
-                    latestAnomalyPt = 0.0; // Clear for the UI polling
+                    latestAnomalyPt = pt; // Still capture the PT for the UI
                     logger.debug("Event verified: Nominal physics signature.");
                 }
             } catch (Exception e) {

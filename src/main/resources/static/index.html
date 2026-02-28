@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuarkStream | CERN MLOps Control Room</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg: #05070a;
@@ -16,7 +19,11 @@
             --border: rgba(255, 255, 255, 0.1);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             background-color: var(--bg);
@@ -47,7 +54,9 @@
             gap: 10px;
         }
 
-        .logo span { color: var(--text); }
+        .logo span {
+            color: var(--text);
+        }
 
         main {
             flex: 1;
@@ -79,7 +88,10 @@
             margin-bottom: 1rem;
         }
 
-        h2 { font-weight: 300; margin-bottom: 2rem; }
+        h2 {
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
 
         .log-container {
             flex: 1;
@@ -92,8 +104,17 @@
             border: 1px solid var(--border);
         }
 
-        .log-entry { margin-bottom: 0.5rem; border-left: 2px solid var(--accent); padding-left: 10px; animation: fadeIn 0.3s ease; }
-        .log-entry.anomaly { border-color: var(--anomaly); color: var(--anomaly); }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            border-left: 2px solid var(--accent);
+            padding-left: 10px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .log-entry.anomaly {
+            border-color: var(--anomaly);
+            color: var(--anomaly);
+        }
 
         .stats-panel {
             background: var(--panel);
@@ -111,10 +132,31 @@
             border-radius: 8px;
         }
 
-        .stat-card label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-        .stat-card .value { font-size: 1.8rem; font-weight: 600; margin-top: 5px; font-family: 'JetBrains Mono', monospace;}
+        .stat-card label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-top: 5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         .pulse {
             width: 8px;
@@ -127,9 +169,25 @@
             animation: pulse-ring 2s infinite;
         }
 
-        @keyframes pulse-ring { 0% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.3; transform: scale(1); } }
+        @keyframes pulse-ring {
+            0% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
+
 <body>
     <header>
         <div class="logo">⚛️ QUARK<span>STREAM</span></div>
@@ -169,7 +227,7 @@
         const logContainer = document.getElementById('logs');
         const countEl = document.getElementById('count');
         const anomalyEl = document.getElementById('anomalies');
-        
+
         let count = 0;
         let anomalies = 0;
 
@@ -186,15 +244,19 @@
             try {
                 const res = await fetch('/api/stats');
                 const data = await res.json();
-                countEl.textContent = data.processedCount;
-                anomalyEl.textContent = data.anomalyCount;
-                
-                if (data.latestAnomaly) {
-                    addLog(`🚨 ANOMALY: High pT Signal Detected (${data.latestAnomaly} GeV)`, true);
-                } else if (data.processedCount > count) {
-                    addLog(`Event verified normal. Transverse Momentum: ${Math.floor(Math.random()*100)} GeV`);
+
+                // Only act if we have new data
+                if (data.processedCount > count) {
+                    countEl.textContent = data.processedCount;
+                    anomalyEl.textContent = data.anomalyCount;
+
+                    if (data.latestAnomaly > 1000) {
+                        addLog(`🚨 ANOMALY: High pT Signal Detected (${data.latestAnomaly} GeV)`, true);
+                    } else {
+                        addLog(`Event #${data.processedCount} verified normal. Nominal physics signature.`);
+                    }
+                    count = data.processedCount;
                 }
-                count = data.processedCount;
             } catch (e) {
                 // Silently wait for backend
             }
@@ -203,4 +265,5 @@
         setInterval(updateStats, 2000);
     </script>
 </body>
+
 </html>
