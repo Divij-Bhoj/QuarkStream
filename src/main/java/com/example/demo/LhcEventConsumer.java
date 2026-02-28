@@ -10,9 +10,15 @@ public class LhcEventConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(LhcEventConsumer.class);
 
+    private final AiInferenceEngine inferenceEngine;
+
+    public LhcEventConsumer(AiInferenceEngine inferenceEngine) {
+        this.inferenceEngine = inferenceEngine;
+    }
+
     @KafkaListener(topics = "lhc-raw-events", groupId = "mlops-anomaly-detector")
     public void consume(String eventPayload) {
         logger.info("Received physics event: {}", eventPayload);
-        // TODO: Pass to AI Inference Engine
+        inferenceEngine.analyzeEvent(eventPayload);
     }
 }
