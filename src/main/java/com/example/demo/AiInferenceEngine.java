@@ -17,8 +17,9 @@ public class AiInferenceEngine {
 
     private static final Logger logger = LoggerFactory.getLogger(AiInferenceEngine.class);
     
-    // In a full production environment, this would hold the OrtSession and OrtEnvironment
-    // from the com.microsoft.onnxruntime library.
+    private final java.util.concurrent.atomic.AtomicLong processedCount = new java.util.concurrent.atomic.AtomicLong(0);
+    private final java.util.concurrent.atomic.AtomicLong anomalyCount = new java.util.concurrent.atomic.AtomicLong(0);
+    private volatile double latestAnomalyPt = 0.0;
 
     @PostConstruct
     public void init() {
@@ -32,19 +33,20 @@ public class AiInferenceEngine {
      * @param eventPayload raw JSON event from the Kafka stream
      */
     public void analyzeEvent(String eventPayload) {
-        // Step 1: Feature Extraction & Normalization
-        // Step 2: Tensor Mapping
-        // Step 3: Execution of ONNX Inference Model
+        processedCount.incrementAndGet();
         
         // Simulation of high-pT anomaly detection for architectural demonstration
         if (eventPayload.contains("\"pt\":")) {
             try {
-                String ptValue = eventPayload.split("\"pt\":")[1].split(",")[0].replace("}", "").trim();
+                String ptValue = eventPayload.split("\"pt\":")[1].split(",")[0].replace("}", "").replace("\"", "").trim();
                 double pt = Double.parseDouble(ptValue);
                 
                 if (pt > 1000.0) {
+                    anomalyCount.incrementAndGet();
+                    latestAnomalyPt = pt;
                     logger.warn("ANOMALY_DETECTED: High-Transverse Momentum Signal Identified (pt={} GeV)", pt);
                 } else {
+                    latestAnomalyPt = 0.0; // Clear for the UI polling
                     logger.debug("Event verified: Nominal physics signature.");
                 }
             } catch (Exception e) {
@@ -52,4 +54,8 @@ public class AiInferenceEngine {
             }
         }
     }
+
+    public long getProcessedCount() { return processedCount.get(); }
+    public long getAnomalyCount() { return anomalyCount.get(); }
+    public double getLatestAnomalyPt() { return latestAnomalyPt; }
 }

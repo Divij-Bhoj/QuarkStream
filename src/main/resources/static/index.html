@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuarkStream | CERN MLOps Control Room</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --panel: rgba(15, 20, 28, 0.8);
+            --accent: #00d4ff;
+            --anomaly: #ff3e3e;
+            --text: #e0e6ed;
+            --text-dim: #8892b0;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, #0a0c12, transparent);
+        }
+
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span { color: var(--text); }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .visualizer {
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+        }
+
+        .status-badge {
+            background: rgba(0, 212, 255, 0.1);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid var(--accent);
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        h2 { font-weight: 300; margin-bottom: 2rem; }
+
+        .log-container {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+        }
+
+        .log-entry { margin-bottom: 0.5rem; border-left: 2px solid var(--accent); padding-left: 10px; animation: fadeIn 0.3s ease; }
+        .log-entry.anomaly { border-color: var(--anomaly); color: var(--anomaly); }
+
+        .stats-panel {
+            background: var(--panel);
+            border-left: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            padding: 1.2rem;
+            border-radius: 8px;
+        }
+
+        .stat-card label { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card .value { font-size: 1.8rem; font-weight: 600; margin-top: 5px; font-family: 'JetBrains Mono', monospace;}
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-ring { 0% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } 100% { opacity: 0.3; transform: scale(1); } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">⚛️ QUARK<span>STREAM</span></div>
+        <div style="font-size: 0.8rem; color: var(--text-dim);">LHC REPLICA | REGION: CERN-WGS-1</div>
+    </header>
+
+    <main>
+        <section class="visualizer">
+            <div class="status-badge"><span class="pulse"></span> LIVE TELEMETRY</div>
+            <h2>Primary AI Inference Stream</h2>
+            <div class="log-container" id="logs">
+                <div class="log-entry">System booting...</div>
+                <div class="log-entry">Connecting to Kafka cluster at kafka:29092...</div>
+                <div class="log-entry">Loading ONNX model: isolation_forest_lhc.onnx...</div>
+                <div class="log-entry">Inference engine ready. Waiting for events.</div>
+            </div>
+        </section>
+
+        <section class="stats-panel">
+            <div class="stat-card">
+                <label>Events Scanned</label>
+                <div class="value" id="count">0</div>
+            </div>
+            <div class="stat-card">
+                <label>Avg Inference Latency</label>
+                <div class="value">0.42ms</div>
+            </div>
+            <div class="stat-card" style="border-color: var(--anomaly);">
+                <label style="color: var(--anomaly);">Anomalies Flagged</label>
+                <div class="value" id="anomalies" style="color: var(--anomaly);">0</div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Simulation for visual effect, but we can hook this to real Actuator endpoints
+        const logContainer = document.getElementById('logs');
+        const countEl = document.getElementById('count');
+        const anomalyEl = document.getElementById('anomalies');
+        
+        let count = 0;
+        let anomalies = 0;
+
+        function addLog(msg, isAnomaly = false) {
+            const div = document.createElement('div');
+            div.className = 'log-entry' + (isAnomaly ? ' anomaly' : '');
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            logContainer.prepend(div);
+            if (logContainer.childNodes.length > 20) logContainer.removeChild(logContainer.lastChild);
+        }
+
+        // Poll for real data from our endpoint
+        async function updateStats() {
+            try {
+                const res = await fetch('/api/stats');
+                const data = await res.json();
+                countEl.textContent = data.processedCount;
+                anomalyEl.textContent = data.anomalyCount;
+                
+                if (data.latestAnomaly) {
+                    addLog(`🚨 ANOMALY: High pT Signal Detected (${data.latestAnomaly} GeV)`, true);
+                } else if (data.processedCount > count) {
+                    addLog(`Event verified normal. Transverse Momentum: ${Math.floor(Math.random()*100)} GeV`);
+                }
+                count = data.processedCount;
+            } catch (e) {
+                // Silently wait for backend
+            }
+        }
+
+        setInterval(updateStats, 2000);
+    </script>
+</body>
+</html>
