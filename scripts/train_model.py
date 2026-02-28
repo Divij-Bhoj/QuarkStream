@@ -32,7 +32,7 @@ def train_and_export():
     onnx_model = convert_sklearn(
         model, 
         initial_types=initial_type,
-        target_opset=13
+        target_opset={'': 14, 'ai.onnx.ml': 3}
     )
     
     # Save the model

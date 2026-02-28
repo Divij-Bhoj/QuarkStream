@@ -245,13 +245,19 @@
                 const res = await fetch('/api/stats');
                 const data = await res.json();
 
+                // Smart Sync: Reset if backend has been restarted
+                if (data.processedCount < count) {
+                    count = 0;
+                    logContainer.innerHTML = '<div class="log-entry">Backend reset detected. Syncing...</div>';
+                }
+
                 // Only act if we have new data
                 if (data.processedCount > count) {
                     countEl.textContent = data.processedCount;
                     anomalyEl.textContent = data.anomalyCount;
 
-                    if (data.latestAnomaly > 1000) {
-                        addLog(`🚨 ANOMALY: High pT Signal Detected (${data.latestAnomaly} GeV)`, true);
+                    if (data.latestAnomaly > 1.0) { // Using 1.0 as the threshold for current trained model logic
+                        addLog(`🚨 AI_ANOMALY: High-variance signal detected (pt=${data.latestAnomaly.toFixed(2)} GeV)`, true);
                     } else {
                         addLog(`Event #${data.processedCount} verified normal. Nominal physics signature.`);
                     }
