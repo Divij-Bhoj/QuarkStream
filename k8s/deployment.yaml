@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quarkstream
+  labels:
+    app: quarkstream
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quarkstream
+  template:
+    metadata:
+      labels:
+        app: quarkstream
+    spec:
+      containers:
+      - name: quarkstream
+        image: divijbhoj/quarkstream:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka-service:9092"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quarkstream-service
+spec:
+  selector:
+    app: quarkstream
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
