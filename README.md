@@ -30,19 +30,26 @@ The project includes a robust GitHub Actions workflow (`.github/workflows/ci.yml
 
 ## 📊 Sample Execution Logs
 
-When the service is running alongside the LHC data generator, you will see real-time anomaly detection in the logs:
+When the service is running, the AI engine processes high-speed telemetry and identifies anomalous physics signatures (e.g., high Transverse Momentum events):
 
 ```text
-2026-02-28 10:15:22.412 INFO  [main] c.e.demo.AiInferenceEngine : AI Inference Engine initialized with ONNX Runtime.
-2026-02-28 10:15:23.088 INFO  [nt-1] c.e.demo.LhcEventConsumer  : Received physics event: {"event_id":9921, "pt":42.5, "eta":1.2}
-2026-02-28 10:15:23.089 INFO  [nt-1] c.e.demo.AiInferenceEngine : Event verified normal by AI.
-2026-02-28 10:15:23.145 INFO  [nt-1] c.e.demo.LhcEventConsumer  : Received physics event: {"event_id":9922, "pt":850.1, "eta":0.1}
-2026-02-28 10:15:23.146 WARN  [nt-1] c.e.demo.AiInferenceEngine : 🚨 AI ANOMALY DETECTED (via ONNX)! Event: {"event_id":9922, "pt":850.1, "eta":0.1}
+2026-02-28 12:31:42 INFO  c.e.demo.QuarkStreamApplication : Started QuarkStreamApplication
+2026-02-28 12:31:47 INFO  o.s.k.l.KafkaMessageListenerContainer : mlops-anomaly-detector: partitions assigned
+2026-02-28 12:32:33 INFO  c.e.demo.LhcEventConsumer : Received physics event: {"event_id": 1772281953, "pt": 42.5, ...}
+2026-02-28 12:35:17 WARN  c.e.demo.AiInferenceEngine : 🚨 ANOMALY_DETECTED: High-Transverse Momentum Signal (pt=1500.2 GeV)
 ```
 
-## 🐳 Containerization & Orchestration
+## 🎮 MLOps Control Room [Dashboard]
+
+The project includes a premium real-time visualization dashboard. Once the service is running, navigate to:
+👉 **`http://localhost:8085`**
+
+This dashboard provides a "Live Telemetry" view, showing real-time event counts and visual alerts for AI-detected anomalies.
+
+## 🏗 Containerization & Orchestration
 
 - **Docker:** `Dockerfile` provided for standard OCI containerization.
+- **Docker Compose:** Orchestrates the full stack (Zookeeper + Kafka + QuarkStream).
 - **Kubernetes:** `k8s/deployment.yaml` included for resilient, scalable deployment.
 
 ## 🚧 Getting Started
@@ -52,11 +59,21 @@ When the service is running alongside the LHC data generator, you will see real-
 - Docker & Docker Compose
 - A running Kafka instance (port 9092)
 
-### Running Locally
+### Running Pure Infrastructure (Docker)
+
+The recommended way to run the full stack is via Docker Compose:
+
+```bash
+sudo docker compose up --build
+```
+
+### Manual Development
+
+If you wish to run the Java application manually:
 
 ```bash
 ./gradlew build
-./gradlew bootRun
+java -jar build/libs/QuarkStream-0.0.1-SNAPSHOT.jar
 ```
 
 ---
