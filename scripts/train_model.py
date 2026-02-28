@@ -27,8 +27,13 @@ def train_and_export():
     print("Model training complete.")
 
     # Convert the scikit-learn model to ONNX
+    # Specify target_opset=13 to ensure compatibility
     initial_type = [('float_input', FloatTensorType([None, n_features]))]
-    onnx_model = convert_sklearn(model, initial_types=initial_type)
+    onnx_model = convert_sklearn(
+        model, 
+        initial_types=initial_type,
+        target_opset=13
+    )
     
     # Save the model
     model_path = "src/main/resources/model.onnx"
