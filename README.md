@@ -5,7 +5,7 @@
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-green)
 
-A real-time MLOps pipeline designed to demonstrate high-throughput physics data processing using enterprise-grade infrastructure. Built as part of a technical portfolio for CERN studentship applications.
+A real-time MLOps pipeline designed to demonstrate high-throughput physics data processing using enterprise-grade infrastructure.
 
 ## Overview
 
